@@ -8,7 +8,7 @@
 </head>
 <body class="bg-slate-900 font-sans min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-600 selection:text-white">
 
-    <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-md border border-slate-800/10 my-auto">
+    <div class="bg-white p-6 md:p-10 rounded-3xl shadow-2xl w-full max-w-md border border-slate-800/10 my-auto">
         <div class="text-center mb-8 flex flex-col items-center">
             <img src="logo.png" alt="Escudo" class="w-16 h-16 object-contain rounded-2xl shadow-md border border-slate-100 bg-white p-1 mb-4">
             <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Acceso Restringido</h2>
@@ -35,19 +35,16 @@
     <script>
         function iniciarSesion(e) {
             e.preventDefault();
-            // .toLowerCase() en el usuario evita errores por mayúsculas
             const usu = document.getElementById('usuario').value.trim().toLowerCase();
             const pass = document.getElementById('clave').value.trim();
 
-            // 📋 Usuarios válidos con sus claves (las llaves deben ir en minúsculas)
             const usuariosValidos = {
                 "admin": "admin",
                 "rafael": "18307764",
-                "bani": "Bani",
+                "bani": "bani",
                 "coordinador": "admin"
             };
 
-            // Valida si el usuario existe y si su contraseña coincide
             if (usuariosValidos[usu] && usuariosValidos[usu] === pass) {
                 localStorage.setItem('sesion_lider', 'activa');
                 window.location.href = 'dashboard.html';
