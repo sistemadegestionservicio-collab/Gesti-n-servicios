@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Líder Comunitario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (localStorage.getItem('sesion_lider') !== 'activa') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body class="bg-slate-100 font-sans selection:bg-blue-600 selection:text-white">
+
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800">
+            <div>
+                <div class="p-6 border-b border-slate-800 flex items-center space-x-3.5">
+                    <img src="logo.png" alt="Escudo" class="w-10 h-10 object-contain rounded-xl shadow-md border border-slate-800 bg-white p-0.5">
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white leading-none">Comunidad Activa</h2>
+                        <span class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Panel de Liderazgo</span>
+                    </div>
+                </div>
+                <nav class="p-4 space-y-1.5">
+                    <a href="dashboard.html" class="block py-3 px-4 rounded-xl bg-blue-600 text-white font-semibold text-sm shadow-lg shadow-blue-600/20">Dashboard</a>
+                    <a href="index.html" class="block py-3 px-4 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition font-medium text-sm">Ver Web Pública</a>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="cerrarSesion()" class="w-full bg-rose-500/10 text-rose-400 border border-rose-500/20 py-2.5 rounded-xl hover:bg-rose-600 hover:text-white transition text-xs font-bold tracking-wider uppercase">Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-10 bg-slate-50/50">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Panel de Control</h1>
+                    <p class="text-slate-500 text-sm mt-1">Gestión y monitoreo en tiempo real desde la nube (Firebase)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                    <p class="text-slate-400 font-bold text-xs uppercase tracking-wider">Total Reportes</p>
+                    <h3 id="stat-total" class="text-3xl font-extrabold text-slate-800 mt-2">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-500"></div>
+                    <p class="text-slate-400 font-bold text-xs uppercase tracking-wider">Pendientes</p>
+                    <h3 id="stat-pendientes" class="text-3xl font-extrabold text-slate-800 mt-2">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                    <p class="text-slate-400 font-bold text-xs uppercase tracking-wider">En Proceso</p>
+                    <h3 id="stat-proceso" class="text-3xl font-extrabold text-slate-800 mt-2">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                    <p class="text-slate-400 font-bold text-xs uppercase tracking-wider">Resueltos</p>
+                    <h3 id="stat-resueltos" class="text-3xl font-extrabold text-slate-800 mt-2">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">Listado de Reportes en la Nube</h3>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="descargarRespaldo()" class="text-xs bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800 font-bold tracking-wider uppercase shadow-sm transition">📥 Descargar Respaldo</button>
+                        <button onclick="limpiarTodo()" class="text-xs text-rose-500 hover:text-rose-700 font-bold tracking-wider uppercase transition px-2 py-1">Limpiar todo</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-100">
+                                <th class="p-4 pl-6">ID</th>
+                                <th class="p-4">Servicio</th>
+                                <th class="p-4">Descripción</th>
+                                <th class="p-4">Ubicación</th>
+                                <th class="p-4">Estatus</th>
+                                <th class="p-4 pr-6">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reportes" class="text-slate-600 text-sm divide-y divide-slate-100">
+                            <tr><td colspan="6" class="p-12 text-center text-slate-400">Cargando datos desde la nube...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBuDDldid8lOu4MRZEXVTxylubhRTjN8iU",
+            authDomain: "comunidadactiva-44f87.firebaseapp.com",
+            projectId: "comunidadactiva-44f87",
+            storageBucket: "comunidadactiva-44f87.firebasestorage.app",
+            messagingSenderId: "988839148130",
+            appId: "1:988839148130:web:57cc762c24ac009628af3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.cerrarSesion = function() {
+            localStorage.removeItem('sesion_lider');
+            window.location.href = 'index.html';
+        };
+
+        async function cargarDashboard() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "reportes"));
+                let reportes = [];
+                querySnapshot.forEach((docSnap) => {
+                    reportes.push({ firestoreId: docSnap.id, ...docSnap.data() });
+                });
+                
+                document.getElementById('stat-total').innerText = reportes.length;
+                document.getElementById('stat-pendientes').innerText = reportes.filter(r => r.estatus === 'Pendiente').length;
+                document.getElementById('stat-proceso').innerText = reportes.filter(r => r.estatus === 'En Proceso').length;
+                document.getElementById('stat-resueltos').innerText = reportes.filter(r => r.estatus === 'Resuelto').length;
+
+                const tbody = document.getElementById('tabla-reportes');
+                tbody.innerHTML = '';
+
+                if (reportes.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-slate-400">No hay reportes registrados en la nube.</td></tr>`;
+                    return;
+                }
+
+                reportes.forEach(r => {
+                    let badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200/60';
+                    if(r.estatus === 'En Proceso') badgeColor = 'bg-indigo-50 text-indigo-700 border border-indigo-200/60';
+                    if(r.estatus === 'Resuelto') badgeColor = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50/80 transition-colors';
+                    tr.innerHTML = `
+                        <td class="p-4 pl-6 font-bold text-slate-900">#${r.id}</td>
+                        <td class="p-4 font-semibold text-slate-800">${r.servicio}</td>
+                        <td class="p-4 text-slate-600 max-w-xs truncate">${r.descripcion}</td>
+                        <td class="p-4 font-mono text-xs">
+                            <a href="https://www.google.com/maps?q=${r.ubicacion}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold inline-flex items-center gap-1 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 transition" title="Ver en Google Maps">
+                                📍 Ver mapa
+                            </a>
+                        </td>
+                        <td class="p-4"><span class="${badgeColor} px-3 py-1 rounded-full text-xs font-bold inline-block">${r.estatus}</span></td>
+                        <td class="p-4 pr-6">
+                            <a href="detalle-reporte.html?id=${r.firestoreId}" class="inline-block bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white px-3.5 py-1.5 rounded-xl font-bold text-xs transition shadow-sm">Gestionar</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error cargando reportes: ", error);
+                document.getElementById('tabla-reportes').innerHTML = `<tr><td colspan="6" class="p-12 text-center text-rose-500 font-medium">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+
+        window.limpiarTodo = async function() {
+            if(confirm('¿Estás seguro de que deseas borrar todos los reportes de la nube?')) {
+                try {
+                    const querySnapshot = await getDocs(collection(db, "reportes"));
+                    const deletePromises = querySnapshot.docs.map(docSnap => deleteDoc(doc(db, "reportes", docSnap.id)));
+                    await Promise.all(deletePromises);
+                    cargarDashboard();
+                } catch (error) {
+                    console.error("Error al limpiar reportes: ", error);
+                    alert("Hubo un error al borrar los reportes.");
+                }
+            }
+        };
+
+        window.descargarRespaldo = async function() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "reportes"));
+                const listaReportes = [];
+                
+                querySnapshot.forEach((docSnap) => {
+                    listaReportes.push({
+                        id_documento: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                if (listaReportes.length === 0) {
+                    alert("No hay reportes en la nube para respaldar todavía.");
+                    return;
+                }
+
+                const datosJson = JSON.stringify(listaReportes, null, 2);
+                const blob = new Blob([datosJson], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                
+                const fechaHoy = new Date().toISOString().slice(0, 10);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `respaldo_comunidad_${fechaHoy}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert(`¡Respaldo descargado con éxito! Se guardaron ${listaReportes.length} reportes.`);
+            } catch (error) {
+                console.error("Error al generar el respaldo:", error);
+                alert("Hubo un error al generar el respaldo.");
+            }
+        };
+
+        cargarDashboard();
+    </script>
+</body>
+</html>

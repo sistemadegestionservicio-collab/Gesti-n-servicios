@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Incidencia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (localStorage.getItem('sesion_lider') !== 'activa') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen py-10 px-4 selection:bg-blue-600 selection:text-white">
+
+    <div class="max-w-4xl mx-auto bg-white p-8 md:p-10 rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/60">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-100 pb-6 mb-8 gap-4">
+            <div>
+                <a href="dashboard.html" class="text-xs font-bold text-blue-600 hover:text-blue-800 transition inline-block mb-1">&larr; Volver al Panel de Control</a>
+                <h2 id="titulo-id" class="text-3xl font-extrabold text-slate-900 tracking-tight">Cargando...</h2>
+            </div>
+            <span id="badge-estatus" class="bg-slate-100 text-slate-800 px-4 py-1.5 rounded-full text-xs font-bold">Cargando</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="space-y-6">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tipo de Servicio</h4>
+                    <p id="det-servicio" class="text-lg font-bold text-slate-800">-</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descripción</h4>
+                    <p id="det-descripcion" class="text-slate-600 text-sm leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100">-</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Coordenadas GPS</h4>
+                    <p id="det-ubicacion" class="text-slate-600 font-mono text-xs">-</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Evidencia Fotográfica</h4>
+                    <div id="det-foto" class="bg-slate-50 h-56 rounded-2xl overflow-hidden flex items-center justify-center text-slate-400 text-sm border border-slate-200/60">
+                        [Sin imagen]
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50/80 p-6 md:p-8 rounded-3xl border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800 mb-4">Gestión Institucional</h3>
+                    
+                    <form onsubmit="guardarAvance(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Actualizar Estatus</label>
+                            <select id="select-estatus" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 transition">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="En Proceso">En Proceso</option>
+                                <option value="Resuelto">Resuelto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Nota de Seguimiento</label>
+                            <textarea id="input-nota" rows="3" class="w-full border border-slate-200 rounded-xl p-3 text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 transition" placeholder="Registrar gestión..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition text-sm shadow-md shadow-blue-600/20">Guardar Avance</button>
+                    </form>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-200/60">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Historial de Cambios</h4>
+                    <ul id="lista-historial" class="space-y-2 text-xs text-slate-600 max-h-36 overflow-y-auto pr-2"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBuDDldid8lOu4MRZEXVTxylubhRTjN8iU",
+            authDomain: "comunidadactiva-44f87.firebaseapp.com",
+            projectId: "comunidadactiva-44f87",
+            storageBucket: "comunidadactiva-44f87.firebasestorage.app",
+            messagingSenderId: "988839148130",
+            appId: "1:988839148130:web:57cc762c24ac009628af3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const firestoreId = urlParams.get('id');
+
+        let reporteActual = null;
+
+        async function inicializarDetalle() {
+            if (!firestoreId) {
+                alert('ID de reporte no válido');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "reportes", firestoreId);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    alert('Reporte no encontrado en la nube');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                reporteActual = docSnap.data();
+
+                document.getElementById('titulo-id').innerText = `Incidencia #${reporteActual.id}`;
+                document.getElementById('det-servicio').innerText = reporteActual.servicio;
+                document.getElementById('det-descripcion').innerText = reporteActual.descripcion;
+                document.getElementById('det-ubicacion').innerText = reporteActual.ubicacion;
+                document.getElementById('select-estatus').value = reporteActual.estatus;
+                
+                const contenedorFoto = document.getElementById('det-foto');
+                if (reporteActual.foto) {
+                    contenedorFoto.innerHTML = `<img src="${reporteActual.foto}" alt="Evidencia" class="w-full h-full object-cover">`;
+                } else {
+                    contenedorFoto.innerHTML = '<span class="text-slate-400">Sin evidencia fotográfica</span>';
+                }
+
+                let badge = document.getElementById('badge-estatus');
+                badge.innerText = reporteActual.estatus;
+                if(reporteActual.estatus === 'Pendiente') badge.className = 'bg-amber-50 text-amber-700 border border-amber-200/60 px-3.5 py-1.5 rounded-full text-xs font-bold';
+                if(reporteActual.estatus === 'En Proceso') badge.className = 'bg-indigo-50 text-indigo-700 border border-indigo-200/60 px-3.5 py-1.5 rounded-full text-xs font-bold';
+                if(reporteActual.estatus === 'Resuelto') badge.className = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-3.5 py-1.5 rounded-full text-xs font-bold';
+
+                renderHistorial();
+            } catch (error) {
+                console.error("Error al cargar detalle: ", error);
+                alert("Error al obtener los datos del reporte.");
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        function renderHistorial() {
+            const ul = document.getElementById('lista-historial');
+            ul.innerHTML = '';
+            if (reporteActual.notas && Array.isArray(reporteActual.notas)) {
+                reporteActual.notas.forEach(nota => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-white p-2.5 rounded-xl border border-slate-200/60 text-slate-600';
+                    li.innerHTML = `• ${nota}`;
+                    ul.appendChild(li);
+                });
+            }
+        }
+
+        window.guardarAvance = async function(e) {
+            e.preventDefault();
+            const nuevoEstatus = document.getElementById('select-estatus').value;
+            const nuevaNota = document.getElementById('input-nota').value.trim();
+            const fechaHora = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let notasActualizadas = [...(reporteActual.notas || [])];
+
+            if (nuevoEstatus !== reporteActual.estatus) {
+                reporteActual.estatus = nuevoEstatus;
+                notasActualizadas.push(`${fechaHora}: Estatus cambiado a "${nuevoEstatus}".`);
+            }
+            if (nuevaNota) {
+                notasActualizadas.push(`${fechaHora}: ${nuevaNota}`);
+            }
+
+            try {
+                const docRef = doc(db, "reportes", firestoreId);
+                await updateDoc(docRef, {
+                    estatus: reporteActual.estatus,
+                    notas: notasActualizadas
+                });
+
+                alert('¡Avance guardado con éxito en la nube!');
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error("Error al actualizar: ", error);
+                alert("Hubo un error al guardar el avance.");
+            }
+        }
+
+        inicializarDetalle();
+    </script>
+</body>
+</html>

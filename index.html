@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Gestión Comunitaria Maracaibo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3.5">
+                <img src="logo.png" alt="Escudo" class="w-11 h-11 object-contain rounded-xl shadow-md border border-slate-100 bg-white p-0.5">
+                <div>
+                    <h1 class="text-base font-extrabold text-slate-900 tracking-tight leading-none">Comunidad Activa</h1>
+                    <span class="text-xs text-blue-600 font-semibold tracking-wide">sistema de Reporte</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="index.html" class="text-blue-600 font-semibold text-sm transition">Inicio</a>
+                <a href="reportar.html" class="text-slate-600 hover:text-blue-600 font-medium text-sm transition">Reportar Falla</a>
+                <a href="login.html" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-lg shadow-slate-900/10 hover:bg-slate-800 transition">Acceso Líderes</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto text-center px-4 py-20">
+        <div class="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold mb-6 border border-blue-100 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+            <span>Plataforma Oficial de Atención Comunitaria</span>
+        </div>
+        <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight">Sistema Inteligente de Reporte de Servicios Públicos</h2>
+        <p class="text-slate-600 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">Ayúdanos a construir una mejor ciudad. Si detectas fallas en el alumbrado, vialidad o servicios hídricos, repórtalo para gestionar una solución rápida y transparente.</p>
+        
+        <a href="reportar.html" class="group bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-base font-bold px-8 py-4 rounded-2xl shadow-xl shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5 transition-all inline-flex items-center space-x-3">
+            <span>📢 Crear un Nuevo Reporte</span>
+            <span class="group-hover:translate-x-1 transition-transform font-mono">→</span>
+        </a>
+    </main>
+
+    <footer class="text-center py-6 text-slate-400 text-xs border-t border-slate-200/60 bg-white/40">
+        Comunidad Activa &copy; 2026 - Todos los derechos reservados
+    </footer>
+
+</body>
+</html>
